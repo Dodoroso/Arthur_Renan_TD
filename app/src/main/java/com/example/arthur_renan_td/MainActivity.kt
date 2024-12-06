@@ -1,5 +1,6 @@
 package com.example.arthur_renan_td
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,7 +9,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material3.Text
@@ -29,43 +34,55 @@ import androidx.compose.ui.Modifier
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            PageProduit()
+            Column {
+                val context = LocalContext.current
+                Button(onClick={val intent = Intent(context, DetailsProduct::class.java)
+                    context.startActivity(intent)}){
+                    Text(text = "Détails")
+                }
+                MyAppBarWithActions()
+                PageProduit()
+            }
+
         }
     }
 }
 
+
 @Composable
 fun PageProduit() {
-    val Produit = remember { mutableStateOf<Product?>(null) }
+    val produits = remember { mutableStateOf<List<Product>?>(null) }
     val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         coroutineScope.launch {
-            val APIRecupProduit = RetrofitInstance.api.getProduct()
-            Produit.value = APIRecupProduit
+                val apiRecupProduits = RetrofitInstance.api.getProducts()
+                produits.value = apiRecupProduits
+
         }
     }
 
-    Column(){
-       MyAppBarWithActions()
-        Text(text = "test")
-        Text(text = "test2")
+    Column {
+        if (produits.value != null) {
+            LazyColumn {
+                items(produits.value!!) { product ->
+                    ProductCard(product = product)
+                }
+            }
+        } else {
+            Text(text = "Chargement des données...", modifier = Modifier.padding(16.dp))
+        }
     }
-
-//    Row(){
-//        if (Produit.value != null) {
-//            val product = Produit.value!!
-//            Text(text = "Titre: ${product.title}\nDescription: ${product.description}\nPrix: ${product.price} €")
-//        } else {
-//            Text(text = "Chargement des données...")
-//        }
-//    }
 }
 
 @Composable
@@ -84,13 +101,33 @@ fun MyAppBarWithActions() {
 }
 
 @Composable
-fun SimpleCard(){
-    val paddingModifier  = Modifier.padding(10.dp)
+fun ProductCard(product: Product) {
     Card(
-        modifier = paddingModifier
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
     ) {
-        Text(text = "Simple Card with elevation",
-            modifier = paddingModifier)
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = product.title,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Text(
+                text = "Prix: ${product.price} €",
+                fontSize = 16.sp,
+                color = Color.Gray
+            )
+            Text(
+                text = product.description,
+                fontSize = 14.sp,
+                color = Color.DarkGray
+            )
+        }
     }
 }
 
