@@ -71,5 +71,5 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.compose.ui:ui:1.0.0")
     implementation("androidx.compose.material:material:1.0.0")
-
+    implementation("io.coil-kt:coil-compose:2.2.2")
 }
