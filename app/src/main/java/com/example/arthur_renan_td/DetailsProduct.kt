@@ -3,75 +3,73 @@ package com.example.arthur_renan_td
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.arthur_renan_td.ui.theme.Arthur_Renan_TDTheme
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.arthur_renan_td.Entity.Product
+import kotlinx.coroutines.launch
 
 class DetailsProduct : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        // Récupération de l'ID du produit depuis l'Intent
+        val productId = intent.getIntExtra("product_id", -1)
+
         setContent {
-            Arthur_Renan_TDTheme {
-                val navController = rememberNavController()
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        navController = navController,
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            ProductDetailPage(productId)
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Greeting(name: String, navController: NavController, modifier: Modifier = Modifier) {
-    NavigationBar(articleName = "Test", onBackPressed = { navController.popBackStack() })
-}
+fun ProductDetailPage(productId: Int) {
+    val product = remember { mutableStateOf<Product?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Arthur_Renan_TDTheme {
-        Greeting("Android", navController = rememberNavController())
+    // Charger les détails du produit via Retrofit
+    LaunchedEffect(productId) {
+        coroutineScope.launch {
+            val apiProductDetail = RetrofitInstance.api.getProductById(productId)
+            product.value = apiProductDetail
+        }
     }
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun NavigationBar(articleName: String, onBackPressed: () -> Unit) {
-    TopAppBar(
-        title = {
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Text(text = articleName, style = MaterialTheme.typography.headlineLarge)
-            }
-        },
-        navigationIcon = {
-            IconButton(onClick = { onBackPressed() }) {
-                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
-            }
-        },
-        modifier = Modifier.fillMaxWidth()
-    )
+    // Afficher les détails du produit
+    if (product.value != null) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            LoadImageFromUrl(product.value!!.image)
+            Text(
+                text = product.value!!.title,
+                modifier = Modifier.padding(top = 8.dp),
+                fontSize = 20.sp
+            )
+            Text(
+                text = product.value!!.description,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Text(
+                text = "Prix: ${product.value!!.price} €",
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+    } else {
+        Text(
+            text = "Chargement des détails du produit...",
+            modifier = Modifier.padding(16.dp)
+        )
+    }
 }

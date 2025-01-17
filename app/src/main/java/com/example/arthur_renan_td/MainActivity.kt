@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -114,13 +115,20 @@ fun MyAppBarWithActions() {
 }
 
 @Composable
-fun ProductCard(product: Product) {
+fun ProductCard(product: Product, context: android.content.Context = LocalContext.current) {
     Card(
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxSize()
             .padding(8.dp)
+            .clickable {
+                // Naviguer vers la page de détails du produit
+                val intent = Intent(context, DetailsProduct::class.java).apply {
+                    putExtra("product_id", product.id) // Passe l'ID du produit
+                }
+                context.startActivity(intent)
+            }
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -140,6 +148,7 @@ fun ProductCard(product: Product) {
         }
     }
 }
+
 
 @Composable
 fun LoadImageFromUrl(url: String, modifier: Modifier = Modifier) {
