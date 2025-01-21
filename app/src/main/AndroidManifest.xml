@@ -16,6 +16,11 @@
         android:theme="@style/Theme.Arthur_Renan_TD"
         tools:targetApi="31">
         <activity
+            android:name=".Paniers"
+            android:exported="false"
+            android:label="@string/title_activity_paniers"
+            android:theme="@style/Theme.Arthur_Renan_TD" />
+        <activity
             android:name=".DetailsProduct"
             android:exported="false"
             android:label="@string/title_activity_details_product"

@@ -6,16 +6,14 @@ import java.util.concurrent.TimeUnit
 object RetrofitInstance {
     private const val BASE_URL = "https://fakestoreapi.com/"
 
-    // Configuration de Retrofit avec OkHttpClient pour le timeout
     private val okHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
-            .callTimeout(25L, TimeUnit.SECONDS) // Timeout pour les appels
-            .readTimeout(25L, TimeUnit.SECONDS) // Timeout pour la lecture des données
-            .connectTimeout(25L, TimeUnit.SECONDS) // Timeout pour la connexion
+            .callTimeout(25L, TimeUnit.SECONDS)
+            .readTimeout(25L, TimeUnit.SECONDS)
+            .connectTimeout(25L, TimeUnit.SECONDS)
             .build()
     }
 
-    // Création de l'instance Retrofit
     val api: ApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)

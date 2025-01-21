@@ -8,4 +8,8 @@ interface ApiService {
 
     @GET("products/{id}")
     suspend fun getProductById(@Path("id") id: Int): Product
+
+    @GET("products/categories")
+    suspend fun getCategories(): List<String>
+
 }
